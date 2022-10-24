@@ -1,2 +1,5 @@
 # VAE
-init
+to add:
+
+- config file
+- visualisations
