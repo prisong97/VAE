@@ -1,10 +1,27 @@
-import numpy as numpy
+import numpy as np
 import torch
 import torchvision
 from torch import nn, optim
 from torch.nn import functional as F
+from scipy.ndimage import rotate
 
 from helper import OHE
+
+
+def rotate_images(example_data, normalised_rotation, max_rotation=45):
+    """
+    function for rotating the images
+    """
+    rotated_imgs = []
+    for k, img in enumerate(example_data):
+        rotated_img = rotate(img.reshape(28,28), normalised_rotation[k][0]*max_rotation, reshape=False)
+        rotated_imgs.append(torch.tensor(rotated_img).reshape(1,28,28))
+
+    example_data = torch.stack(rotated_imgs).type(torch.float)
+    example_data = example_data.flatten(start_dim=1)
+    
+    return example_data
+    
 
 class CVAE(nn.Module):
     
@@ -156,14 +173,14 @@ class CVAE(nn.Module):
         z_sample = self.z_sample(mu_batch, logsigma_batch, epsilon)
         
         logqzx = -torch.mean(torch.sum(logsigma_batch + 0.5*epsilon**2, axis=1), axis=0) #- z_size*0.5*torch.log(torch.tensor(2)*torch.pi)
-        logpz =  -0.5*torch.mean(torch.sum(epsilon**2, axis=1),axis=0) #-z_size*0.5*torch.log(torch.tensor(2)*torch.pi)
+        logpz =  -0.5*torch.mean(torch.sum(z_sample**2, axis=1),axis=0) #-z_size*0.5*torch.log(torch.tensor(2)*torch.pi)
         
         # assume std normal dist about the output
         decoder_input = torch.concat([z_sample, conditional_vector], axis=1)
         output = self.forward(decoder_input, self.output)
         logpxz =  -0.5*torch.mean(torch.sum(torch.square(y-output), axis=1), axis=0) # -z_size*0.5*torch.log(torch.tensor(2)*torch.pi)
         
-        loss = -(logqzx + logpz + logpxz) 
+        loss = -(logpxz + logpz - logqzx) 
 
         return loss
     
@@ -191,10 +208,17 @@ class CVAE(nn.Module):
             examples = enumerate(train_loader)
             for j in range(minibatch_len):
                 batch_idx, (example_data, example_targets) = next(examples)
-                example_data = example_data.flatten(start_dim=1)
-                conditional_vector = torch.tensor(OHE(example_targets.numpy()))
-                conditional_vector = conditional_vector.type(torch.float)
+                normalised_rotation = np.random.uniform(low=-1, high=1, size=(len(example_data), 1))
+              
+                # rotate the images
+                example_data = rotate_images(example_data, normalised_rotation)                
                 
+                conditional_vector = torch.tensor(OHE(example_targets.numpy()))
+                       
+                # add rotation info to conditional vector               
+                conditional_vector = torch.concat([conditional_vector, torch.tensor(normalised_rotation)], axis=1)
+                conditional_vector = conditional_vector.type(torch.float)
+             
                 self.optimizer.zero_grad()
                 loss = self.loss(example_data, conditional_vector)
                 loss.backward()
