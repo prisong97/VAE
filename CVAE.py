@@ -10,7 +10,7 @@ from helper import OHE
 
 def rotate_images(example_data, normalised_rotation, max_rotation=45):
     """
-    function for rotating the images
+    function for rotating and flattening the images
     """
     rotated_imgs = []
     for k, img in enumerate(example_data):
