@@ -7,7 +7,7 @@ Our conditional variables are then:
 - The digit (from 0-9),
 - The angle of rotation (from -45 to 45 degrees).
 
-In our implementation, the digit is one hot encoded, while the angle of rotation is represented by a value $\in [-1, 1]$ that is subsequently multiplied
+In our implementation, the digit is one hot encoded, while the angle is represented by a factor $\in [-1, 1]$ that is subsequently multiplied
 by $45$ to obtain the rotation.
 
 ### Reconstructing the images after training
