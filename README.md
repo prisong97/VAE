@@ -6,7 +6,7 @@ We implement the model using the MNIST dataset, where our conditional variables 
 - The angle of rotation (from -45 to 45 degrees).
 
 
-![image info](/Users/admin/Desktop/Masters/REP1/figures/reconstructed_images.png)
+![image info](figures/CVAE_reconstructed_images.png)
 
 To add:
 - config file
