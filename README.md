@@ -8,6 +8,9 @@ We implement the model using the MNIST dataset, where our conditional variables 
 
 ![image info](figures/CVAE_reconstructed_images.png)
 
+![image info](figures/CVAE_randomly_generated_images.png)
+
+
 To add:
 - config file
 - GPU support
