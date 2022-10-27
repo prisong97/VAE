@@ -6,6 +6,8 @@ We implement the model using the MNIST dataset, where our conditional variables 
 - The angle of rotation (from -45 to 45 degrees).
 
 
+![image info](./figures/images/reconstructed_images.pdf)
+
 To add:
 - config file
 - GPU support
